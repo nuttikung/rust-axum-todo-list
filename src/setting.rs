@@ -8,9 +8,17 @@ pub struct Server {
 }
 
 #[derive(Debug, Clone)]
+pub struct Database {
+    pub host: String,
+    pub user: String,
+    pub password: String,
+    pub dbname: String,
+}
+
+#[derive(Debug, Clone)]
 pub struct Setting {
     pub server: Server,
-    // pub database: Database,
+    pub database: Database,
 }
 
 impl Setting {
@@ -24,14 +32,21 @@ impl Setting {
             server: Server {
                 port: settings.get_int("server.port").unwrap(),
             },
-            // database: Database {
-            //     host: settings.get_string("database.host").unwrap(),
-            //     port: settings.get_int("database.port").unwrap(),
-            //     user: settings.get_string("database.user").unwrap(),
-            //     password: settings.get_string("database.password").unwrap(),
-            //     dbname: settings.get_string("database.dbname").unwrap(),
-            //     schema: settings.get_string("database.schema").unwrap(),
-            // },
+            database: Database {
+                host: settings.get_string("database.host").unwrap(),
+                user: settings.get_string("database.user").unwrap(),
+                password: settings.get_string("database.password").unwrap(),
+                dbname: settings.get_string("database.dbname").unwrap(),
+            },
         }))
+    }
+}
+
+impl Database {
+    pub fn url_getting(&self) -> String {
+        format!(
+            "postgresql://{}:{}@{}/{}?sslmode=require",
+            self.user, self.password, self.host, self.dbname
+        )
     }
 }
