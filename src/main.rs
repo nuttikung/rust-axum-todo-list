@@ -1,5 +1,7 @@
+use std::sync::Arc;
+
 use axum::{Json, Router, http::Method, routing::get};
-use rust_axum_todo_list::setting::Setting;
+use rust_axum_todo_list::{database, setting::Setting};
 use serde_json::{Value, json};
 use tower::ServiceBuilder;
 use tower_http::{
@@ -17,6 +19,12 @@ async fn main() {
         .with_max_level(tracing::Level::DEBUG)
         .init();
     // end region :  --- Tracing
+
+    // region :      --- Setting and Database
+    let setting = Setting::new().unwrap();
+    let db_pool = database::conn_getting(Arc::clone(&setting)).await.unwrap();
+        println!("database connection has been established.");
+    // end region :  --- Setting and Database
 
     // region :      --- Router Constant
     let api_routes = Router::new().merge(route_todo());
@@ -42,20 +50,17 @@ async fn main() {
         );
     // end region :  --- Router Constant
 
-    // region :      --- Load Setting
-    let setting = Setting::new().unwrap();
+    // region :      --- Start Server
     let port: String = setting.server.port.to_string();
     let host: String = String::from("127.0.0.1");
     let address = format!("{}:{}", host, &port);
-    // end region :  --- Load Setting
-
     // run our app with hyper, listening globally on port 3000
     let listener = tokio::net::TcpListener::bind(&address).await.unwrap();
     println!("--> LISTENING on {:?} \n", listener.local_addr());
-    // region : --------start server--------
     axum::serve(listener, router.into_make_service())
         .await
         .unwrap();
+    // end region :  --- Start Server
 }
 
 // region :      --- Route Hello
