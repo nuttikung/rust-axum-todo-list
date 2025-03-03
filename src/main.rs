@@ -1,19 +1,36 @@
-use axum::{Json, Router, routing::get};
+use axum::{Json, Router, http::Method, routing::get};
 use rust_axum_todo_list::setting::Setting;
 use serde_json::{Value, json};
 use tower::ServiceBuilder;
-use tower_http::{compression::CompressionLayer, decompression::RequestDecompressionLayer};
+use tower_http::{
+    compression::CompressionLayer,
+    cors::{Any, Cors, CorsLayer},
+    decompression::RequestDecompressionLayer,
+};
 
 #[tokio::main]
 async fn main() {
     // region :      --- Router Constant
     let api_routes = Router::new().merge(route_todo());
     // Make it nested as /api/*
-    let router = Router::new().nest("/api", api_routes).layer(
-        ServiceBuilder::new()
-            .layer(RequestDecompressionLayer::new())
-            .layer(CompressionLayer::new()),
-    );
+    let router = Router::new()
+        .nest("/api", api_routes)
+        .layer(
+            CorsLayer::new()
+                .allow_methods([
+                    Method::GET,
+                    Method::POST,
+                    Method::PUT,
+                    Method::PATCH,
+                    Method::DELETE,
+                ])
+                .allow_origin(Any),
+        )
+        .layer(
+            ServiceBuilder::new()
+                .layer(RequestDecompressionLayer::new())
+                .layer(CompressionLayer::new()),
+        );
     // end region :  --- Router Constant
 
     // region :      --- Load Setting
