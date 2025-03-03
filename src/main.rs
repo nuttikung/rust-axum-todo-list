@@ -6,10 +6,18 @@ use tower_http::{
     compression::CompressionLayer,
     cors::{Any, Cors, CorsLayer},
     decompression::RequestDecompressionLayer,
+    trace::TraceLayer,
 };
+use tracing_subscriber::layer::SubscriberExt;
 
 #[tokio::main]
 async fn main() {
+    // region :      --- Tracing
+    tracing_subscriber::fmt()
+        .with_max_level(tracing::Level::DEBUG)
+        .init();
+    // end region :  --- Tracing
+
     // region :      --- Router Constant
     let api_routes = Router::new().merge(route_todo());
     // Make it nested as /api/*
@@ -26,6 +34,7 @@ async fn main() {
                 ])
                 .allow_origin(Any),
         )
+        .layer(TraceLayer::new_for_http())
         .layer(
             ServiceBuilder::new()
                 .layer(RequestDecompressionLayer::new())
