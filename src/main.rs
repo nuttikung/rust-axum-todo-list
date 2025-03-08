@@ -1,16 +1,18 @@
 use std::sync::Arc;
 
-use axum::{Json, Router, http::Method, routing::get};
-use rust_axum_todo_list::{database, setting::Setting};
-use serde_json::{Value, json};
+use axum::Router;
+use axum::http::Method;
+use axum::routing::{get, post};
+use rust_axum_todo_list::app_state::AppState;
+use rust_axum_todo_list::controller::todo::{add_todo, list_todo};
+use rust_axum_todo_list::database;
+use rust_axum_todo_list::setting::Setting;
+
 use tower::ServiceBuilder;
-use tower_http::{
-    compression::CompressionLayer,
-    cors::{Any, Cors, CorsLayer},
-    decompression::RequestDecompressionLayer,
-    trace::TraceLayer,
-};
-use tracing_subscriber::layer::SubscriberExt;
+use tower_http::compression::CompressionLayer;
+use tower_http::cors::{Any, CorsLayer};
+use tower_http::decompression::RequestDecompressionLayer;
+use tower_http::trace::TraceLayer;
 
 #[tokio::main]
 async fn main() {
@@ -22,15 +24,20 @@ async fn main() {
 
     // region :      --- Setting and Database
     let setting = Setting::new().unwrap();
-    let db_pool = database::conn_getting(Arc::clone(&setting)).await.unwrap();
-        println!("database connection has been established.");
+    let db_pool = AppState {
+        connection: database::conn_getting(Arc::clone(&setting))
+            .await
+            .expect("can't connect to database"),
+    };
+    tracing::debug!("database connection has been established.");
     // end region :  --- Setting and Database
 
-    // region :      --- Router Constant
-    let api_routes = Router::new().merge(route_todo());
-    // Make it nested as /api/*
+    // region :      --- All Route
+    let todo_router = todo_routes();
+    // end region :  --- All Route
+
+    // region :      --- Main Router
     let router = Router::new()
-        .nest("/api", api_routes)
         .layer(
             CorsLayer::new()
                 .allow_methods([
@@ -47,8 +54,10 @@ async fn main() {
             ServiceBuilder::new()
                 .layer(RequestDecompressionLayer::new())
                 .layer(CompressionLayer::new()),
-        );
-    // end region :  --- Router Constant
+        )
+        .nest("/api/todos", todo_router)
+        .with_state(Arc::new(db_pool));
+    // end region :  --- Main Router
 
     // region :      --- Start Server
     let port: String = setting.server.port.to_string();
@@ -56,21 +65,44 @@ async fn main() {
     let address = format!("{}:{}", host, &port);
     // run our app with hyper, listening globally on port 3000
     let listener = tokio::net::TcpListener::bind(&address).await.unwrap();
-    println!("--> LISTENING on {:?} \n", listener.local_addr());
+    tracing::debug!("--> LISTENING on {:?} \n", listener.local_addr());
     axum::serve(listener, router.into_make_service())
         .await
         .unwrap();
     // end region :  --- Start Server
 }
 
-// region :      --- Route Hello
-fn route_todo() -> Router {
-    return Router::new().route("/hello", get(handler_hello));
+// region :      --- Todo Routes
+fn todo_routes() -> Router<Arc<AppState>> {
+    Router::new()
+        .route("/", get(list_todo))
+        .route("/", post(add_todo))
 }
-// end region :  --- Route Hello
+// end region :  --- Todo Routes
 
-// region :      --- Handle Hello
-async fn handler_hello() -> Json<Value> {
-    Json(json!({ "data": 42 }))
-}
-// end region :  --- Handle Hello
+// region :      ---
+// Git (Get All) ->
+// ALL -> []
+// 6
+// (P, Dorin, Fuse)
+// DETAIL (id) -> {
+//     completed": true,
+//     created_at: "2025-03-05T17:38:48.103054Z",
+//     description: "Nat first todo",
+//     id: 1,
+//     updated_at: "2025-03-05T17:38:48.103054Z"
+// }
+//
+// CREATE -> {
+//     description: string
+// }
+
+// (Ton Great)
+// UPDATE (id) -> {
+//     description: string
+//     completed: boolean
+// }
+
+// (Jeff Theng)
+// DELETE (id)
+// end region :  ---
