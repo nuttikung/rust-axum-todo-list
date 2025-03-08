@@ -75,8 +75,7 @@ async fn main() {
 // region :      --- Todo Routes
 fn todo_routes() -> Router<Arc<AppState>> {
     Router::new()
-        .route("/", get(list_todo))
-        .route("/", post(add_todo))
+        .route("/", get(list_todo).post(add_todo))
 }
 // end region :  --- Todo Routes
 
