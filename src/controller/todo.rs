@@ -1,6 +1,10 @@
 use std::sync::Arc;
 
-use axum::{Json, extract::State, http::StatusCode};
+use axum::{
+    Json,
+    extract::{Path, State},
+    http::StatusCode,
+};
 use serde_json::{Value, json};
 
 use crate::{
@@ -41,6 +45,29 @@ pub async fn add_todo(
 
     match result {
         Ok(id) => Ok((StatusCode::CREATED, Json(json!({ "id": id })))),
+        Err(e) => {
+            tracing::error!("Database error: {:?}", e);
+            Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(json!({
+                    "error": "internal server error"
+                })),
+            ))
+        }
+    }
+}
+
+pub async fn delete_todo(
+    State(state): State<Arc<AppState>>,
+    Path(id): Path<i64>,
+) -> Result<Json<Value>, (StatusCode, Json<Value>)> {
+    let result = sqlx::query(r#"delete from todos where id=($1);"#)
+        .bind(id)
+        .execute(&state.connection)
+        .await;
+
+    match result {
+        Ok(_) => Ok(Json(json!({ "message": "success" }))),
         Err(e) => {
             tracing::error!("Database error: {:?}", e);
             Err((
