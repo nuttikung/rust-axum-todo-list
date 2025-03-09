@@ -14,4 +14,10 @@ pub struct CreateTodo {
     pub description: String,
 }
 
+#[derive(Deserialize, Debug)]
+pub struct UpdateTodo {
+    pub description: String,
+    pub completed: bool,
+}
+
 pub type TodoList = Vec<Todo>;

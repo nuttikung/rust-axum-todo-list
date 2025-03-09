@@ -2,9 +2,9 @@ use std::sync::Arc;
 
 use axum::Router;
 use axum::http::Method;
-use axum::routing::{delete, get};
+use axum::routing::{get, put};
 use rust_axum_todo_list::app_state::AppState;
-use rust_axum_todo_list::controller::todo::{add_todo, delete_todo, list_todo};
+use rust_axum_todo_list::controller::todo::{add_todo, delete_todo, list_todo, update_todo};
 use rust_axum_todo_list::database;
 use rust_axum_todo_list::setting::Setting;
 
@@ -72,11 +72,12 @@ async fn main() {
     // end region :  --- Start Server
 }
 
+// TODO: move to route file
 // region :      --- Todo Routes
 fn todo_routes() -> Router<Arc<AppState>> {
     Router::new()
         .route("/", get(list_todo).post(add_todo))
-        .route("/{id}", delete(delete_todo))
+        .route("/{id}", put(update_todo).delete(delete_todo))
 }
 // end region :  --- Todo Routes
 
