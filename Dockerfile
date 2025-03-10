@@ -7,7 +7,7 @@ COPY ./ /app
 RUN cargo build --release
 
 # use alpine image
-FROM alpine3.21
+FROM 3.21
 # copy binary file
 COPY --from=0 /app/target/release/rust-axum-todo-list .
 # set the binary as entrypoint
