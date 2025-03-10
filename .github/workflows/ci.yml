@@ -17,7 +17,7 @@ jobs:
       - run: |
           touch Setting.toml
           echo [server] >> Setting.toml
-          echo port = ${{ env.APP_PORT }} >> Setting.toml
+          echo port = ${{ vars.APP_PORT }} >> Setting.toml
           echo [database] >> Setting.toml
           # echo host = ${{ secrets.DB_HOST }} >> Setting.toml
           cat Setting.toml
