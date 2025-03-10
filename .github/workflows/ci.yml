@@ -44,5 +44,5 @@ jobs:
 
       - name: Build and Push Docker Image
         run: |
-          docker build -t asia-southeast1-docker.pkg.dev/$GOOGLE_PROJECT_ID/rust-axum-todo-list:latest .
-          docker push asia-southeast1-docker.pkg.dev/$GOOGLE_PROJECT_ID/rust-axum-todo-list:latest
+          docker build -t asia-southeast1-docker.pkg.dev/${{ secrets.GOOGLE_PROJECT_ID }}/rust-axum-todo-list:latest .
+          docker push asia-southeast1-docker.pkg.dev/${{ secrets.GOOGLE_PROJECT_ID }}/rust-axum-todo-list:latest
