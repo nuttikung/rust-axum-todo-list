@@ -11,6 +11,7 @@ jobs:
   set_env:
     runs-on: ubuntu-latest
     name: "Create Setting.toml file"
+    environment: PROD
     steps:
       - run: |
           touch Setting.toml
