@@ -1,14 +1,16 @@
 # rust version 1.85 alpine image
-FROM 1.85-alpine3.21
+FROM rust:1.85-alpine3.21 AS builder
+# add dependencies
+RUN apk add --no-cache pkgconfig
 # set work directory and copy source to it
 WORKDIR /app
 COPY ./ /app
 # build release version
 RUN cargo build --release
 
-# use alpine image
-FROM 3.21
+# runtime stage
+FROM alpine:3.21 AS runtime
 # copy binary file
-COPY --from=0 /app/target/release/rust-axum-todo-list .
+COPY --from=builder /app/target/release/rust-axum-todo-list .
 # set the binary as entrypoint
 ENTRYPOINT ["/rust-axum-todo-list"]
