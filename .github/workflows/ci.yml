@@ -1,0 +1,36 @@
+name: Cargo Build & Test
+
+on:
+  # push:
+  pull_request:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  set_env:
+    runs-on: ubuntu-latest
+    name: "Create Setting.toml file"
+    steps:
+      - run: |
+          touch Setting.toml
+          echo [server] >> Setting.toml
+          echo port = ${{ env.APP_PORT }} >> Setting.toml
+          echo [database] >> Setting.toml
+          # echo host = ${{ secrets.DB_HOST }} >> Setting.toml
+          cat Setting.toml
+
+  # build_and_test:
+  #   name: Rust project - latest
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     matrix:
+  #       toolchain:
+  #         - stable
+  #         - beta
+  #         - nightly
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - run: rustup update ${{ matrix.toolchain }} && rustup default ${{ matrix.toolchain }}
+  #     - run: cargo build --verbose
+  #     - run: cargo test --verbose
