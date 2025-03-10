@@ -16,46 +16,49 @@ use crate::{
 // region :      --- Todo Handler
 pub async fn list_todo(
     State(state): State<Arc<AppState>>,
-) -> Result<Json<Value>, (StatusCode, Json<Value>)> {
-    let result = sqlx::query_as::<_, Todo>(r#"select * from todos order by id"#)
+) -> Result<(StatusCode, Json<Value>), (StatusCode, Json<Value>)> {
+    let rows = sqlx::query_as::<_, Todo>(r#"select * from todos order by id"#)
         .fetch_all(&state.connection)
-        .await;
-    match result {
-        Ok(todo) => return Ok(Json(json!({ "data": todo }))),
-        Err(e) => {
+        .await
+        .map_err(|e| {
             tracing::error!("Database error: {:?}", e);
-            return Err((
+            (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 Json(json!({
                     "error": "internal server error"
                 })),
-            ));
-        }
-    }
+            )
+        })?;
+
+    Ok((
+        StatusCode::OK,
+        Json(json!({ "success": true, "data": rows })),
+    ))
 }
 
 pub async fn add_todo(
     State(state): State<Arc<AppState>>,
     Json(payload): Json<CreateTodo>,
 ) -> Result<(StatusCode, Json<Value>), (StatusCode, Json<Value>)> {
-    let result =
+    let row =
         sqlx::query_scalar::<_, i64>(r#"insert into todos (description) values ($1) returning id"#)
             .bind(payload.description)
             .fetch_one(&state.connection)
-            .await;
+            .await
+            .map_err(|e| {
+                tracing::error!("Database error: {:?}", e);
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    Json(json!({
+                        "error": "internal server error"
+                    })),
+                )
+            })?;
 
-    match result {
-        Ok(id) => return Ok((StatusCode::CREATED, Json(json!({ "id": id })))),
-        Err(e) => {
-            tracing::error!("Database error: {:?}", e);
-            return Err((
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Json(json!({
-                    "error": "internal server error"
-                })),
-            ));
-        }
-    }
+    Ok((
+        StatusCode::CREATED,
+        Json(json!({ "success": true, "data": row })),
+    ))
 }
 
 pub async fn update_todo(
@@ -70,12 +73,12 @@ pub async fn update_todo(
         .await
         .map_err(|e| {
             tracing::error!("Database error: {:?}", e);
-            return (
+            (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 Json(json!({
                     "error": "internal server error"
                 })),
-            );
+            )
         })?;
     // TODO: refactor this update_todo and delete_todo both are using this statement.
     if record.is_none() {
@@ -89,32 +92,33 @@ pub async fn update_todo(
     }
     // UPDATE ROW VIA SQL
     let updated_at = Utc::now();
-    let result = sqlx::query_scalar::<_, i64>(r#"update todos set description=($1), completed=($2), updated_at=($3) where id=($4) returning id"#)
+    let row = sqlx::query_scalar::<_, i64>(r#"update todos set description=($1), completed=($2), updated_at=($3) where id=($4) returning id"#)
     .bind(payload.description)
     .bind(payload.completed)
     .bind(updated_at)
     .bind(id)
     .fetch_one(&state.connection)
-    .await;
-    // Return Result
-    match result {
-        Ok(id) => return Ok((StatusCode::OK, Json(json!({ "id": id })))),
-        Err(e) => {
-            tracing::error!("Database error: {:?}", e);
-            return Err((
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Json(json!({
-                    "error": "internal server error"
-                })),
-            ));
-        }
-    }
+    .await
+    .map_err(|e| {
+        tracing::error!("Database error: {:?}", e);
+        (
+           StatusCode::INTERNAL_SERVER_ERROR,
+           Json(json!({
+               "error": "internal server error"
+           })),
+       )
+    })?;
+
+    Ok((
+        StatusCode::OK,
+        Json(json!({ "success": true, "data": row })),
+    ))
 }
 
 pub async fn delete_todo(
     State(state): State<Arc<AppState>>,
     Path(id): Path<i64>,
-) -> Result<Json<Value>, (StatusCode, Json<Value>)> {
+) -> Result<(StatusCode, Json<Value>), (StatusCode, Json<Value>)> {
     // TODO: refactor this
     let record = sqlx::query_as::<_, Todo>(r#"select * from todos where id=($1)"#)
         .bind(id)
@@ -122,12 +126,12 @@ pub async fn delete_todo(
         .await
         .map_err(|e| {
             tracing::error!("Database error: {:?}", e);
-            return (
+            (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 Json(json!({
                     "error": "internal server error"
                 })),
-            );
+            )
         })?;
     // TODO: refactor this
     if record.is_none() {
@@ -140,22 +144,20 @@ pub async fn delete_todo(
         ));
     }
 
-    let result = sqlx::query(r#"delete from todos where id=($1)"#)
+    let _row = sqlx::query(r#"delete from todos where id=($1)"#)
         .bind(id)
         .execute(&state.connection)
-        .await;
-
-    match result {
-        Ok(_) => return Ok(Json(json!({ "message": "success" }))),
-        Err(e) => {
+        .await
+        .map_err(|e| {
             tracing::error!("Database error: {:?}", e);
-            return Err((
+            (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 Json(json!({
                     "error": "internal server error"
                 })),
-            ));
-        }
-    }
+            )
+        })?;
+
+    Ok((StatusCode::OK, Json(json!({ "success": true, "data": id }))))
 }
 // end region :  --- Todo Handler

@@ -22,15 +22,18 @@ async fn main() {
         .init();
     // end region :  --- Tracing
 
-    // region :      --- Setting and Database
+    // region :      --- Set variables from environment variables
     let setting = Setting::new().unwrap();
+    // end region :  --- Set variables from environment variables
+
+    // region :      --- Create database pool
     let db_pool = AppState {
         connection: database::conn_getting(Arc::clone(&setting))
             .await
             .expect("can't connect to database"),
     };
     tracing::debug!("database connection has been established.");
-    // end region :  --- Setting and Database
+    // end region :  --- Create database pool
 
     // region :      --- All Route
     let todo_router = todo_routes();
@@ -59,17 +62,19 @@ async fn main() {
         .with_state(Arc::new(db_pool));
     // end region :  --- Main Router
 
-    // region :      --- Start Server
+    // region :      --- Create TCP listener
     let port: String = setting.server.port.to_string();
     let host: String = String::from("127.0.0.1");
     let address = format!("{}:{}", host, &port);
-    // run our app with hyper, listening globally on port 3000
     let listener = tokio::net::TcpListener::bind(&address).await.unwrap();
     tracing::debug!("--> LISTENING on {:?} \n", listener.local_addr());
+    // end region :  --- Create TCP listener
+
+    // region :      --- Serve the application
     axum::serve(listener, router.into_make_service())
         .await
         .unwrap();
-    // end region :  --- Start Server
+    // end region :  --- Serve the application
 }
 
 // TODO: move to route file

@@ -19,8 +19,19 @@ jobs:
           echo [server] >> Setting.toml
           echo port = ${{ vars.APP_PORT }} >> Setting.toml
           echo [database] >> Setting.toml
-          # echo host = ${{ secrets.DB_HOST }} >> Setting.toml
-          cat Setting.toml
+          echo host = ${{ secrets.DB_HOST }} >> Setting.toml
+          echo user = ${{ secrets.DB_USER }} >> Setting.toml
+          echo password = ${{ secrets.DB_PASSWORD }} >> Setting.toml
+          echo dbname = ${{ secrets.DB_DBNAME }} >> Setting.toml
+          echo schema = ${{ secrets.DB_SCHEMA }} >> Setting.toml
+
+  build_production:
+    runs-on: ubuntu-latest
+    name: "Build for release"
+    steps:
+      - name: Build for release
+        run: cargo build --release
+        shell: bash
 
   # build_and_test:
   #   name: Rust project - latest

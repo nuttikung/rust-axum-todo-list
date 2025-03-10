@@ -1,6 +1,6 @@
-use sqlx::{Pool, Postgres};
+use sqlx::PgPool;
 
 #[derive(Debug)]
 pub struct AppState {
-    pub connection: Pool<Postgres>,
+    pub connection: PgPool,
 }
