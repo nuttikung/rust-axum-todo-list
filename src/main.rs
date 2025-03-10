@@ -1,16 +1,18 @@
 use std::sync::Arc;
 
-use axum::{Json, Router, http::Method, routing::get};
-use rust_axum_todo_list::{database, setting::Setting};
-use serde_json::{Value, json};
+use axum::Router;
+use axum::http::Method;
+use axum::routing::{get, put};
+use rust_axum_todo_list::app_state::AppState;
+use rust_axum_todo_list::controller::todo::{add_todo, delete_todo, list_todo, update_todo};
+use rust_axum_todo_list::database;
+use rust_axum_todo_list::setting::Setting;
+
 use tower::ServiceBuilder;
-use tower_http::{
-    compression::CompressionLayer,
-    cors::{Any, Cors, CorsLayer},
-    decompression::RequestDecompressionLayer,
-    trace::TraceLayer,
-};
-use tracing_subscriber::layer::SubscriberExt;
+use tower_http::compression::CompressionLayer;
+use tower_http::cors::{Any, CorsLayer};
+use tower_http::decompression::RequestDecompressionLayer;
+use tower_http::trace::TraceLayer;
 
 #[tokio::main]
 async fn main() {
@@ -20,17 +22,25 @@ async fn main() {
         .init();
     // end region :  --- Tracing
 
-    // region :      --- Setting and Database
+    // region :      --- Set variables from environment variables
     let setting = Setting::new().unwrap();
-    let db_pool = database::conn_getting(Arc::clone(&setting)).await.unwrap();
-        println!("database connection has been established.");
-    // end region :  --- Setting and Database
+    // end region :  --- Set variables from environment variables
 
-    // region :      --- Router Constant
-    let api_routes = Router::new().merge(route_todo());
-    // Make it nested as /api/*
+    // region :      --- Create database pool
+    let db_pool = AppState {
+        connection: database::conn_getting(Arc::clone(&setting))
+            .await
+            .expect("can't connect to database"),
+    };
+    tracing::debug!("database connection has been established.");
+    // end region :  --- Create database pool
+
+    // region :      --- All Route
+    let todo_router = todo_routes();
+    // end region :  --- All Route
+
+    // region :      --- Main Router
     let router = Router::new()
-        .nest("/api", api_routes)
         .layer(
             CorsLayer::new()
                 .allow_methods([
@@ -47,30 +57,58 @@ async fn main() {
             ServiceBuilder::new()
                 .layer(RequestDecompressionLayer::new())
                 .layer(CompressionLayer::new()),
-        );
-    // end region :  --- Router Constant
+        )
+        .nest("/api/todos", todo_router)
+        .with_state(Arc::new(db_pool));
+    // end region :  --- Main Router
 
-    // region :      --- Start Server
+    // region :      --- Create TCP listener
     let port: String = setting.server.port.to_string();
     let host: String = String::from("127.0.0.1");
     let address = format!("{}:{}", host, &port);
-    // run our app with hyper, listening globally on port 3000
     let listener = tokio::net::TcpListener::bind(&address).await.unwrap();
-    println!("--> LISTENING on {:?} \n", listener.local_addr());
+    tracing::debug!("--> LISTENING on {:?} \n", listener.local_addr());
+    // end region :  --- Create TCP listener
+
+    // region :      --- Serve the application
     axum::serve(listener, router.into_make_service())
         .await
         .unwrap();
-    // end region :  --- Start Server
+    // end region :  --- Serve the application
 }
 
-// region :      --- Route Hello
-fn route_todo() -> Router {
-    return Router::new().route("/hello", get(handler_hello));
+// TODO: move to route file
+// region :      --- Todo Routes
+fn todo_routes() -> Router<Arc<AppState>> {
+    Router::new()
+        .route("/", get(list_todo).post(add_todo))
+        .route("/{id}", put(update_todo).delete(delete_todo))
 }
-// end region :  --- Route Hello
+// end region :  --- Todo Routes
 
-// region :      --- Handle Hello
-async fn handler_hello() -> Json<Value> {
-    Json(json!({ "data": 42 }))
-}
-// end region :  --- Handle Hello
+// region :      ---
+// Git (Get All) ->
+// ALL -> []
+// 6
+// (P, Dorin, Fuse)
+// DETAIL (id) -> {
+//     completed": true,
+//     created_at: "2025-03-05T17:38:48.103054Z",
+//     description: "Nat first todo",
+//     id: 1,
+//     updated_at: "2025-03-05T17:38:48.103054Z"
+// }
+//
+// CREATE -> {
+//     description: string
+// }
+
+// (Ton Great)
+// UPDATE (id) -> {
+//     description: string
+//     completed: boolean
+// }
+
+// (Jeff Theng)
+// DELETE (id)
+// end region :  ---
