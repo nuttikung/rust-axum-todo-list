@@ -29,6 +29,9 @@ jobs:
     runs-on: ubuntu-latest
     name: "Build for release"
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Build for release
         run: cargo build --release
         shell: bash
