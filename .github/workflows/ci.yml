@@ -45,4 +45,5 @@ jobs:
       - name: Build and Push Docker Image
         run: |
           docker build -t asia-southeast1-docker.pkg.dev/${{ secrets.GOOGLE_PROJECT_ID }}/rust-axum-todo-list:latest .
+          docker tag asia-southeast1-docker.pkg.dev/${{ secrets.GOOGLE_PROJECT_ID }}/rust-axum-todo-list:latest gcr.io/asia-southeast1-docker.pkg.dev/${{ secrets.GOOGLE_PROJECT_ID }}/rust-axum-todo-list:latest
           docker push gcr.io/asia-southeast1-docker.pkg.dev/${{ secrets.GOOGLE_PROJECT_ID }}/rust-axum-todo-list:latest
