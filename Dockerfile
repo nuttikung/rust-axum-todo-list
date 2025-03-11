@@ -1,7 +1,9 @@
 # rust version 1.85 alpine image
 FROM rust:1.85-alpine3.21 AS builder
 # add dependencies
-RUN apk add --no-cache pkgconfig musl-dev libssl-dev
+RUN apk add --no-cache pkgconfig
+RUN apk add --no-cache musl-dev
+RUN apk add --no-cache libressl-dev
 # set work directory and copy source to it
 WORKDIR /app
 COPY ./ /app
