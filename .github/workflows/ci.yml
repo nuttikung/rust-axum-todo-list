@@ -44,5 +44,7 @@ jobs:
 
       - name: Build and Push Docker Image
         run: |
-          docker build -t asia-southeast1-docker.pkg.dev/${{ secrets.GOOGLE_PROJECT_ID }}/rust-web-api:latest .
-          docker push asia-southeast1-docker.pkg.dev/${{ secrets.GOOGLE_PROJECT_ID }}/rust-web-api:latest
+          tagname="${{github.ref_name}}"
+          docker build -t rust-axum-api --target prod .
+          docker tag rust-axum-api asia-southeast1-docker.pkg.dev/${{ secrets.GOOGLE_PROJECT_ID }}/rust-web-api:$tagname
+          docker push asia-southeast1-docker.pkg.dev/${{ secrets.GOOGLE_PROJECT_ID }}/rust-web-api:$tagname
