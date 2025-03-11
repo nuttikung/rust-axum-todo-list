@@ -40,9 +40,9 @@ jobs:
 
       - name: Configure Docker
         run: |
-          gcloud auth configure-docker gcr.io
+          gcloud auth configure-docker asia-southeast1-docker.pkg.dev
 
       - name: Build and Push Docker Image
         run: |
-          docker build -t gcr.io/${{ secrets.GOOGLE_PROJECT_ID }}/rust-sample-web:latest .
-          docker push gcr.io/${{ secrets.GOOGLE_PROJECT_ID }}/rust-sample-web:latest
+          docker build -t asia-southeast1-docker.pkg.dev/${{ secrets.GOOGLE_PROJECT_ID }}/rust-sample-web:latest .
+          docker push asia-southeast1-docker.pkg.dev/${{ secrets.GOOGLE_PROJECT_ID }}/rust-sample-web:latest
