@@ -44,7 +44,6 @@ jobs:
 
       - name: Build and Push Docker Image
         run: |
-          IMAGE_URI="${{ secrets.GCP_LOCATION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/ust-web-api:latest"
-          tagname="${{github.ref_name}}"
+          IMAGE_URI="${{ secrets.GCP_LOCATION }}-docker.pkg.dev/${{ secrets.GOOGLE_PROJECT_ID }}/rust-web-api:latest"
           docker build -t "$IMAGE_URI" .
           docker push "$IMAGE_URI"
