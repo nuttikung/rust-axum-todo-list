@@ -55,7 +55,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      # - uses: 'google-github-actions/deploy-cloudrun@v2'
-      #   with:
-      #     image: ${{ secrets.GCP_LOCATION }}-docker.pkg.dev/${{ secrets.GOOGLE_PROJECT_ID }}/rust-web-api/api:latest
-      #     service: 'hello-cloud-run'
+      - uses: 'google-github-actions/deploy-cloudrun@v2'
+        with:
+          image: ${{ secrets.GCP_LOCATION }}-docker.pkg.dev/${{ secrets.GOOGLE_PROJECT_ID }}/rust-web-api/api:latest
+          service: ${{ secrets.GCR_SERVICE_NAME}}
