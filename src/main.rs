@@ -65,7 +65,7 @@ async fn main() {
 
     // region :      --- Create TCP listener
     let port: String = setting.server.port.to_string();
-    let host: String = String::from("127.0.0.1");
+    let host: String = String::from("0.0.0.0");
     let address = format!("{}:{}", host, &port);
     let listener = tokio::net::TcpListener::bind(&address).await.unwrap();
     tracing::debug!("--> LISTENING on {:?} \n", listener.local_addr());
