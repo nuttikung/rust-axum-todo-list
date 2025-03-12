@@ -13,6 +13,7 @@ RUN cargo build --release
 # runtime stage
 FROM alpine:3.21 AS runtime
 # copy binary file
+COPY --from=builder /app/Setting.toml .
 COPY --from=builder /app/target/release/rust-axum-todo-list .
 # set the binary as entrypoint
 ENTRYPOINT ["/rust-axum-todo-list"]
