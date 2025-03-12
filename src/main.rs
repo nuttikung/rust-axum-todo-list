@@ -58,6 +58,7 @@ async fn main() {
                 .layer(RequestDecompressionLayer::new())
                 .layer(CompressionLayer::new()),
         )
+        .route("/", get(|| async { "Hello, World!" }))
         .nest("/api/todos", todo_router)
         .with_state(Arc::new(db_pool));
     // end region :  --- Main Router

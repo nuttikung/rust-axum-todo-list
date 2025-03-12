@@ -54,8 +54,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      # - name: Build and Push Docker Image
-      #   run: |
-      #     IMAGE_URI="${{ secrets.GCP_LOCATION }}-docker.pkg.dev/${{ secrets.GOOGLE_PROJECT_ID }}/rust-web-api:latest"
-      #     docker build -t "$IMAGE_URI" .
-      #     docker push "$IMAGE_URI"
+      # - uses: 'google-github-actions/deploy-cloudrun@v2'
+      #   with:
+      #     image: ${{ secrets.GCP_LOCATION }}-docker.pkg.dev/${{ secrets.GOOGLE_PROJECT_ID }}/rust-web-api/api:latest
+      #     service: 'hello-cloud-run'
