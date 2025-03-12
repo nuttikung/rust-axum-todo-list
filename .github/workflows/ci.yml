@@ -21,14 +21,14 @@ jobs:
         run: |
           cat << EOF > Setting.toml
               [server]
-              port = ${{ vars.APP_PORT }}
+              port=${{ vars.APP_PORT }}
 
               [database]
-              host = ${{ secrets.DB_HOST }}
-              user = ${{ secrets.DB_USER }}
-              password = ${{ secrets.DB_PASSWORD }}
-              dbname = ${{ secrets.DB_DBNAME }}
-              schema = ${{ secrets.DB_SCHEMA }}
+              host = "${{ secrets.DB_HOST }}"
+              user = "${{ secrets.DB_USER }}"
+              password = "${{ secrets.DB_PASSWORD }}"
+              dbname = "${{ secrets.DB_DBNAME }}"
+              schema = "${{ secrets.DB_SCHEMA }}"
             EOF
 
       - name: Google Cloud Auth
