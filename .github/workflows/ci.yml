@@ -57,5 +57,6 @@ jobs:
 
       - uses: 'google-github-actions/deploy-cloudrun@v2'
         with:
+          region: ${{ secrets.GCP_LOCATION }}
           image: ${{ secrets.GCP_LOCATION }}-docker.pkg.dev/${{ secrets.GOOGLE_PROJECT_ID }}/rust-web-api/api:latest
           service: ${{ secrets.GCR_SERVICE_NAME}}
