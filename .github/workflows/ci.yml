@@ -19,15 +19,17 @@ jobs:
 
       - name: "set-up env"
         run: |
-          touch Setting.toml
-          echo [server] >> Setting.toml
-          echo port = ${{ vars.APP_PORT }} >> Setting.toml
-          echo [database] >> Setting.toml
-          echo host = ${{ secrets.DB_HOST }} >> Setting.toml
-          echo user = ${{ secrets.DB_USER }} >> Setting.toml
-          echo password = ${{ secrets.DB_PASSWORD }} >> Setting.toml
-          echo dbname = ${{ secrets.DB_DBNAME }} >> Setting.toml
-          echo schema = ${{ secrets.DB_SCHEMA }} >> Setting.toml
+          cat << EOF > Setting.toml
+              [server]
+              port = ${{ vars.APP_PORT }}
+
+              [database]
+              host = ${{ secrets.DB_HOST }}
+              user = ${{ secrets.DB_USER }}
+              password = ${{ secrets.DB_PASSWORD }}
+              dbname = ${{ secrets.DB_DBNAME }}
+              schema = ${{ secrets.DB_SCHEMA }}
+            EOF
 
       - name: Google Cloud Auth
         uses: google-github-actions/auth@v2
