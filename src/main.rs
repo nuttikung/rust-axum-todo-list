@@ -1,7 +1,8 @@
 use std::sync::Arc;
 
 use axum::Router;
-use axum::http::Method;
+use axum::http::HeaderValue;
+use axum::http::header::CONTENT_TYPE;
 use axum::routing::get;
 use rust_axum_todo_list::app_state::AppState;
 use rust_axum_todo_list::controller::todo::{
@@ -37,32 +38,31 @@ async fn main() {
     tracing::debug!("database connection has been established.");
     // end region :  --- Create database pool
 
+    // region :      --- Middleware Layer
+    let cors_layer = CorsLayer::new()
+        .allow_methods(Any)
+        .allow_headers([CONTENT_TYPE])
+        .allow_origin("http://localhost:8080".parse::<HeaderValue>().unwrap());
+
+    let trace_layer = TraceLayer::new_for_http();
+
+    let services_layer = ServiceBuilder::new()
+        .layer(RequestDecompressionLayer::new())
+        .layer(CompressionLayer::new());
+    // end region :  --- Middleware Layer
+
     // region :      --- All Route
     let todo_router = todo_routes();
     // end region :  --- All Route
 
     // region :      --- Main Router
     let router = Router::new()
-        .layer(
-            CorsLayer::new()
-                .allow_methods([
-                    Method::GET,
-                    Method::POST,
-                    Method::PUT,
-                    Method::PATCH,
-                    Method::DELETE,
-                ])
-                .allow_origin(Any),
-        )
-        .layer(TraceLayer::new_for_http())
-        .layer(
-            ServiceBuilder::new()
-                .layer(RequestDecompressionLayer::new())
-                .layer(CompressionLayer::new()),
-        )
         // Health Check for monitoring.
         .route("/", get(|| async { "OK!" }))
         .nest("/api/todos", todo_router)
+        .layer(cors_layer)
+        .layer(trace_layer)
+        .layer(services_layer)
         .with_state(Arc::new(db_pool));
     // end region :  --- Main Router
 
