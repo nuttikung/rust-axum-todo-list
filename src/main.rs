@@ -92,30 +92,3 @@ fn todo_routes() -> Router<Arc<AppState>> {
         )
 }
 // end region :  --- Todo Routes
-
-// region :      ---
-// Git (Get All) ->
-// ALL -> []
-// 6
-// (P, Dorin, Fuse)
-// DETAIL (id) -> {
-//     completed": true,
-//     created_at: "2025-03-05T17:38:48.103054Z",
-//     description: "Nat first todo",
-//     id: 1,
-//     updated_at: "2025-03-05T17:38:48.103054Z"
-// }
-//
-// CREATE -> {
-//     description: string
-// }
-
-// (Ton Great)
-// UPDATE (id) -> {
-//     description: string
-//     completed: boolean
-// }
-
-// (Jeff Theng)
-// DELETE (id)
-// end region :  ---
