@@ -25,7 +25,7 @@ pub async fn list_todo(
             (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 Json(json!({
-                    "error": "internal server error"
+                    "description": "internal server error"
                 })),
             )
         })?;
@@ -33,6 +33,40 @@ pub async fn list_todo(
     Ok((
         StatusCode::OK,
         Json(json!({ "success": true, "data": rows })),
+    ))
+}
+
+pub async fn detail_todo(
+    State(state): State<Arc<AppState>>,
+    Path(id): Path<i64>,
+) -> Result<(StatusCode, Json<Value>), (StatusCode, Json<Value>)> {
+    let record = sqlx::query_as::<_, Todo>(r#"select * from todos where id=($1)"#)
+        .bind(&id)
+        .fetch_optional(&state.connection)
+        .await
+        .map_err(|e| {
+            tracing::error!("Database error: {:?}", e);
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(json!({
+                    "error": "internal server error"
+                })),
+            )
+        })?;
+
+    if record.is_none() {
+        tracing::error!("Todo ID:{} does not exists", id);
+        return Err((
+            StatusCode::NOT_FOUND,
+            Json(json!({
+                "error": "record does not exists"
+            })),
+        ));
+    }
+
+    Ok((
+        StatusCode::OK,
+        Json(json!({ "success": true, "data": record })),
     ))
 }
 
