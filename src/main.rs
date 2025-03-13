@@ -2,9 +2,11 @@ use std::sync::Arc;
 
 use axum::Router;
 use axum::http::Method;
-use axum::routing::{get, put};
+use axum::routing::get;
 use rust_axum_todo_list::app_state::AppState;
-use rust_axum_todo_list::controller::todo::{add_todo, delete_todo, list_todo, update_todo};
+use rust_axum_todo_list::controller::todo::{
+    add_todo, delete_todo, detail_todo, list_todo, update_todo,
+};
 use rust_axum_todo_list::database;
 use rust_axum_todo_list::setting::Setting;
 
@@ -58,7 +60,8 @@ async fn main() {
                 .layer(RequestDecompressionLayer::new())
                 .layer(CompressionLayer::new()),
         )
-        .route("/", get(|| async { "Hello, World!" }))
+        // Health Check for monitoring.
+        .route("/", get(|| async { "OK!" }))
         .nest("/api/todos", todo_router)
         .with_state(Arc::new(db_pool));
     // end region :  --- Main Router
@@ -83,7 +86,10 @@ async fn main() {
 fn todo_routes() -> Router<Arc<AppState>> {
     Router::new()
         .route("/", get(list_todo).post(add_todo))
-        .route("/{id}", put(update_todo).delete(delete_todo))
+        .route(
+            "/{id}",
+            get(detail_todo).put(update_todo).delete(delete_todo),
+        )
 }
 // end region :  --- Todo Routes
 
