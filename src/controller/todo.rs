@@ -25,7 +25,7 @@ pub async fn list_todo(
             (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 Json(json!({
-                    "description": "internal server error"
+                    "error": "internal server error"
                 })),
             )
         })?;
