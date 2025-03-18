@@ -8,23 +8,23 @@ This is a sample project created to support my college coursework, featuring a T
 
 ## Acknowledgments
 
-I would like to express my sincere gratitude to @autokup015 for their trust and patience while waiting for this API implementation. Their support throughout this project has been invaluable, and this collaboration has significantly enhanced my learning experience.
+I would like to express my sincere gratitude to [Auto](https://github.com/autokup015) for their trust and patience while waiting for this API implementation. Their support throughout this project has been invaluable, and this collaboration has significantly enhanced my learning experience.
 
 ## Integration Partners
 
 This API is designed to integrate with the Vue.js application being developed by:
 
 - [Auto](https://github.com/autokup015) - Chonlatee Sriwichai
-- [Great]() - Krittamet Chuwongworaphinit
-- [Dorin]() - Chanoknan Somfan
-- [Ton]() - Napongpitch Charoensri
-- [P]() - Peerapat Kunkid
-- [Fuse]() - Phongkhanet Kaewrit
-- [Theng]() - Monthon Wannaphop
-- [Jeffrey]() - Jeffrey Zhi Yee Chong
-- [New]() - Vanakorn Inyai
-- [Mu]() - Pattarakorn Suksanguan
-- [Kushi]() - Mushi Sonthliwal
-- [Boss]() - Saranphat Janwatsiri
+- [Great](https://github.com/greatkub) - Krittamet Chuwongworaphinit
+- [Dorin](https://github.com/dinodorinna) - Chanoknan Somfan
+- [Ton](https://github.com/napongpitch) - Napongpitch Charoensri
+- [P](https://github.com/PeerapatKunkid) - Peerapat Kunkid
+- [Fuse](https://github.com/MRfuseter) - Phongkhanet Kaewrit
+- [Theng](https://github.com/logano02) - Monthon Wannaphop
+- [Jeffrey](https://github.com/jeffreyjczy) - Jeffrey Zhi Yee Chong
+- [New](https://github.com/vanakorn11) - Vanakorn Inyai
+- [Mu](https://github.com/MuPattarakorn) - Pattarakorn Suksanguan
+- [Khushi](https://github.com/missmushi) - Mushi Sonthliwal
+- [Boss](https://github.com/BossBSJ) - Saranphat Janwatsiri
 
 I'm excited to see how you'll implement the frontend using Vue.js that connects to this API. Looking forward to your progress! Happy coding, and feel free to reach out if you have any questions about the API endpoints or implementation details.
