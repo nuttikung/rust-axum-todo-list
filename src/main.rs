@@ -39,10 +39,15 @@ async fn main() {
     // end region :  --- Create database pool
 
     // region :      --- Middleware Layer
+    let origins = [
+        "http://localhost:8080".parse::<HeaderValue>().unwrap(),
+        "https://codesandbox.io".parse::<HeaderValue>().unwrap(),
+    ];
+
     let cors_layer = CorsLayer::new()
         .allow_methods(Any)
         .allow_headers([CONTENT_TYPE])
-        .allow_origin("http://localhost:8080".parse::<HeaderValue>().unwrap());
+        .allow_origin(origins);
 
     let trace_layer = TraceLayer::new_for_http();
 
