@@ -42,6 +42,7 @@ async fn main() {
     let origins = [
         "http://localhost:8080".parse::<HeaderValue>().unwrap(),
         "https://codesandbox.io".parse::<HeaderValue>().unwrap(),
+        "https://7vyyx9.csb.app".parse::<HeaderValue>().unwrap(),
     ];
 
     let cors_layer = CorsLayer::new()
