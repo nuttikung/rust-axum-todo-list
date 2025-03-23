@@ -43,6 +43,7 @@ async fn main() {
         "http://localhost:8080".parse::<HeaderValue>().unwrap(),
         "https://codesandbox.io".parse::<HeaderValue>().unwrap(),
         "https://7vyyx9.csb.app".parse::<HeaderValue>().unwrap(),
+        "https://n6d8k5.csb.app".parse::<HeaderValue>().unwrap(),
     ];
 
     let cors_layer = CorsLayer::new()
