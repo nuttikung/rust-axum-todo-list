@@ -41,8 +41,7 @@ async fn main() {
     // region :      --- Middleware Layer
     let origins = [
         "http://localhost:8080".parse::<HeaderValue>().unwrap(),
-        "https://4z67w2.csb.app".parse::<HeaderValue>().unwrap(),
-        "https://fqd7vz.csb.app".parse::<HeaderValue>().unwrap(),
+        "https://mk7fj9.csb.app".parse::<HeaderValue>().unwrap(),
     ];
 
     let cors_layer = CorsLayer::new()
